@@ -20,5 +20,7 @@
     <module>core</module>
     <module>engine</module>
     <module>gui</module>
+    <module>packaging</module>
   </modules>
+
 </project>

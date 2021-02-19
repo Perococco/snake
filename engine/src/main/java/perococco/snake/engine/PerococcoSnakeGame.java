@@ -50,12 +50,12 @@ public class PerococcoSnakeGame implements SnakeGame {
         this.headIndex = width;
         this.snakeLength = 1;
 
-        this.pendingDirection = Direction.EAST;
-        for (int i = 0; i < width-1; i++) {
-            this.apple = Point.of(i+1,1);
-            moveSnake();
-        }
-        this.pendingDirection = Direction.SOUTH;
+//        this.pendingDirection = Direction.EAST;
+//        for (int i = 0; i < width-1; i++) {
+//            this.apple = Point.of(i+1,1);
+//            moveSnake();
+//        }
+//        this.pendingDirection = Direction.SOUTH;
 
         this.apple = this.pickApplePosition().orElseThrow(() -> new RuntimeException("BUG !!"));
     }

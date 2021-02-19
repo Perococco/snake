@@ -1,0 +1,204 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>perococco.snake</groupId>
+        <artifactId>snake-packaging</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>snake-packaging-windows</artifactId>
+    <packaging>pom</packaging>
+
+    <name>${application.name} - ${module.name} : Windows</name>
+
+    <properties>
+        <application-directory.name>${versioned-application.name}</application-directory.name>
+        <packaging.directory>${project.build.directory}/packaging</packaging.directory>
+        <build.directory>${packaging.directory}/${application-directory.name}</build.directory>
+        <archive.name>${packaging.directory}/${versioned-application.name}_windows.zip</archive.name>
+        <root.dir>${project.basedir}/../..</root.dir>
+
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-web</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+            <scope>provided</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>resources</directory>
+                <targetPath>${packaging.directory}/resources</targetPath>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${root.dir}/build</directory>
+                            <includes>
+                                <include>**/*_windows.zip</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <excludeClassifiers>win,mac</excludeClassifiers>
+                            <outputDirectory>${packaging.directory}/dependencies</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                            <excludeArtifactIds>hamcrest-core,lombok,junit</excludeArtifactIds>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>Copy Executable</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>${win-build.phase}</phase>
+                        <configuration>
+                            <target>
+                                <exec executable="jpackage">
+                                    <arg value="--dest"/>
+                                    <arg value="${packaging.directory}"/>
+                                    <arg value="--name"/>
+                                    <arg value="Snake"/>
+                                    <arg value="--module-path"/>
+                                    <arg value="${packaging.directory}/dependencies"/>
+                                    <arg value="--module"/>
+                                    <arg value="snake.gui/perococco.snake.gui.Main"/>
+                                    <arg value="--type"/>
+                                    <arg value="app-image"/>
+                                    <arg value="--jlink-options"/>
+                                    <arg value="--bind-services"/>
+                                </exec>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>zip directories</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>${win-build.phase}</phase>
+                        <configuration>
+                            <target>
+                                <tar destfile="${archive.name}" compression="gzip">
+                                    <tarfileset dir="${packaging.directory}/Snake/bin" filemode="700" prefix="${versioned-application.name}/bin">
+                                        <include name="Snake"/>
+                                    </tarfileset>
+                                    <tarfileset dir="${packaging.directory}/Snake/lib" prefix="${versioned-application.name}/lib"/>
+                                </tar>
+                            </target>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>Copy Zips</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>${win-build.phase}</phase>
+                        <configuration>
+                            <target>
+                                <copy file="${archive.name}" toDir="${root.dir}/build"/>
+                            </target>
+                        </configuration>
+                    </execution>
+
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

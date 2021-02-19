@@ -14,8 +14,7 @@
         <application.name>Snake</application.name>
         <module.name>Parent POM</module.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>15</maven.compiler.source>
-        <maven.compiler.target>15</maven.compiler.target>
+        <java.version>15</java.version>
 
 
         <junit.version>4.13</junit.version>
@@ -23,6 +22,7 @@
 
         <javafx.version>15.0.1</javafx.version>
 
+        <build.phase>package</build.phase>
     </properties>
 
     <dependencies>
@@ -86,10 +86,36 @@
                 <artifactId>snake-gui</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>perococco.snake</groupId>
+                <artifactId>snake-launcher</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <target>${java.version}</target>
+                    <source>${java.version}</source>
+                    <encoding>UTF-8</encoding>
+                    <compilerArgs>
+                        <compilerArg>-parameters</compilerArg>
+                    </compilerArgs>
+                    <annotationProcessorPaths>
+                        <invalid-on-purpose>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </invalid-on-purpose>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
         <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
             <plugins>
                 <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
@@ -134,4 +160,35 @@
             </plugins>
         </pluginManagement>
     </build>
+
+
+    <profiles>
+        <profile>
+            <id>unix</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <properties>
+                <linux-build.phase>package</linux-build.phase>
+                <win-build.phase>none</win-build.phase>
+                <mac-build.phase>none</mac-build.phase>
+            </properties>
+        </profile>
+        <profile>
+            <id>win</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <linux-build.phase>none</linux-build.phase>
+                <win-build.phase>package</win-build.phase>
+                <mac-build.phase>none</mac-build.phase>
+            </properties>
+        </profile>
+    </profiles>
+
 </project>

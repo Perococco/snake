@@ -1,0 +1,6 @@
+--add-modules javafx.base,javafx.graphics
+--add-reads javafx.base=ALL-UNNAMED
+--add-reads javafx.graphics=ALL-UNNAMED
+-Dfile.encoding=UTF-8
+-p ./lib
+-m  snake.gui/perococco.snake.gui.Main

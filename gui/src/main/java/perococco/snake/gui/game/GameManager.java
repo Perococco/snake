@@ -3,9 +3,11 @@ package perococco.snake.gui.game;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import lombok.*;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Synchronized;
 import perococco.snake.core.Direction;
 import perococco.snake.core.GameState;
 import perococco.snake.core.SnakeGame;
@@ -116,7 +118,6 @@ public class GameManager {
 
         @Override
         public void run() {
-            System.out.println("LAUNCHED");
             try {
             while (!Thread.currentThread().isInterrupted()) {
                 try {

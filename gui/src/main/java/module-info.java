@@ -10,6 +10,7 @@ module snake.gui {
     requires javafx.controls;
     requires javafx.fxml;
     requires snake.core;
+    requires java.desktop;
 
     exports perococco.snake.gui;
 
