@@ -40,6 +40,6 @@
 
     <modules>
         <module>linux</module>
-<!--        <module>windows</module>-->
+        <module>windows</module>
     </modules>
 </project>

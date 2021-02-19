@@ -14,6 +14,7 @@
     <name>${application.name} - ${module.name} : Windows</name>
 
     <properties>
+        <app.version>1.0.0</app.version>
         <application-directory.name>${versioned-application.name}</application-directory.name>
         <packaging.directory>${project.build.directory}/packaging</packaging.directory>
         <build.directory>${packaging.directory}/${application-directory.name}</build.directory>
@@ -123,7 +124,7 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <excludeClassifiers>win,mac</excludeClassifiers>
+                            <excludeClassifiers>linux,mac</excludeClassifiers>
                             <outputDirectory>${packaging.directory}/dependencies</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>false</overWriteSnapshots>
@@ -150,6 +151,12 @@
                                 <exec executable="jpackage">
                                     <arg value="--dest"/>
                                     <arg value="${packaging.directory}"/>
+                                    <arg value="--app-version"/>
+                                    <arg value="${app.version}"/>
+                                    <arg value="--icon"/>
+                                    <arg value="${packaging.directory}/resources/application-icon.ico"/>
+                                    <arg value="--description"/>
+                                    <arg value="Basic Snake Game"/>
                                     <arg value="--name"/>
                                     <arg value="Snake"/>
                                     <arg value="--module-path"/>
@@ -172,12 +179,9 @@
                         <phase>${win-build.phase}</phase>
                         <configuration>
                             <target>
-                                <tar destfile="${archive.name}" compression="gzip">
-                                    <tarfileset dir="${packaging.directory}/Snake/bin" filemode="700" prefix="${versioned-application.name}/bin">
-                                        <include name="Snake"/>
-                                    </tarfileset>
-                                    <tarfileset dir="${packaging.directory}/Snake/lib" prefix="${versioned-application.name}/lib"/>
-                                </tar>
+                                <zip destfile="${archive.name}" >
+                                    <zipfileset dir="${packaging.directory}/Snake" prefix="${versioned-application.name}"/>
+                                </zip>
                             </target>
                         </configuration>
                     </execution>

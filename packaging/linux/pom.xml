@@ -152,6 +152,12 @@
                                     <arg value="${packaging.directory}"/>
                                     <arg value="--name"/>
                                     <arg value="Snake"/>
+                                    <arg value="--app-version"/>
+                                    <arg value="${project.version}"/>
+                                    <arg value="--icon"/>
+                                    <arg value="${packaging.directory}/resources/application-icon.ico"/>
+                                    <arg value="--description"/>
+                                    <arg value="Basic Snake Game"/>
                                     <arg value="--module-path"/>
                                     <arg value="${packaging.directory}/dependencies"/>
                                     <arg value="--module"/>
