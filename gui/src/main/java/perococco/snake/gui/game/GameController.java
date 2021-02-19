@@ -2,19 +2,15 @@ package perococco.snake.gui.game;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.event.WeakEventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import lombok.NonNull;
-import perococco.snake.core.GameState;
-import perococco.snake.gui.KeyListener;
+import perococco.snake.core.GameView;
 import perococco.snake.gui.KeyTracker;
 import perococco.snake.gui.game.drawer.G1dootSnakeDrawer;
-
-import java.util.Optional;
 
 public class GameController implements EventHandler<KeyEvent> {
 
@@ -22,10 +18,9 @@ public class GameController implements EventHandler<KeyEvent> {
     private final @NonNull GameManager gameManager;
     private final @NonNull KeyTracker keyTracker;
 
-    private final ObjectProperty<Optional<GameState>> gameState = new SimpleObjectProperty<>(Optional.empty());
+    private final ObjectProperty<GameView> gameView = new SimpleObjectProperty<>(GameView.empty());
     public Canvas drawingArea;
 
-    private final ChangeListener<Number> tickListener = (l,o,n) -> this.onTick();
     public Pane parent;
 
     public GameController(@NonNull GameManager gameManager,
@@ -34,9 +29,8 @@ public class GameController implements EventHandler<KeyEvent> {
         this.gameManager = gameManager;
         this.keyTracker = keyTracker;
         this.snakeDrawerMap = snakeDrawerMap;
-        this.gameState.bind(gameManager.gameStateProperty());
-        this.gameManager.addTickChangeListener(tickListener);
-
+        this.gameView.bind(gameManager.getModel().gameViewProperty());
+        this.gameView.addListener((l,o,n) -> this.onGameViewChanged(n));
         this.keyTracker.addListener(new WeakEventHandler<>(this));
     }
 
@@ -45,7 +39,7 @@ public class GameController implements EventHandler<KeyEvent> {
         if (event.getEventType() == KeyEvent.KEY_PRESSED) {
             gameManager.handleUserInput(event);
         }
-        if (GameState.RUNNING == gameState.get().orElse(null)) {
+        if (gameView.get().isRunning()) {
             event.consume();
         }
     }
@@ -56,32 +50,30 @@ public class GameController implements EventHandler<KeyEvent> {
     }
 
 
-    private void onTick() {
+    private void onGameViewChanged(@NonNull GameView gameView) {
         final var fullWidth = drawingArea.getWidth();
         final var fullHeight = drawingArea.getHeight();
         final var g = drawingArea.getGraphicsContext2D();
-
         g.clearRect(-1,-1, fullWidth+2, fullHeight+2);
-        final var snakeGame = gameManager.getSnakeGame().orElse(null);
-        if (snakeGame == null) {
+
+        if (gameView.isEmpty()) {
             return;
         }
-        final var gameHeight = snakeGame.getHeight();
-        final var gameWidth = snakeGame.getWidth();
 
+        final int gameWidth = gameView.getWidth();
+        final int gameHeight = gameView.getHeight();
         final double cellSize = Math.min(fullHeight/(gameHeight+2), fullWidth/(gameWidth+2));
-
         final DrawInfo drawInfo = new DrawInfo(g,gameWidth,gameHeight,cellSize);
 
-
         BorderDrawer.draw(drawInfo);
+
         g.translate(cellSize,cellSize);
         try {
-            snakeGame.getApple().ifPresent(p -> AppleDrawer.draw(drawInfo,p));
+            gameView.getApple().ifPresent(p -> AppleDrawer.draw(drawInfo,p));
             gameManager.getSnakeDrawer()
                        .flatMap(snakeDrawerMap::getDrawer)
                        .orElseGet(G1dootSnakeDrawer::new)
-                       .draw(drawInfo, snakeGame.getSnake());
+                       .draw(drawInfo, gameView);
         } finally {
             g.translate(-cellSize,-cellSize);
         }

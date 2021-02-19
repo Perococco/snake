@@ -2,11 +2,10 @@ package perococco.snake.engine;
 
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import perococco.snake.core.*;
 
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class PerococcoSnakeGame implements SnakeGame {
@@ -21,7 +20,7 @@ public class PerococcoSnakeGame implements SnakeGame {
 
     private Point apple;
 
-    private final Cell[] points;
+    private final Cell[] cells;
 
     private @NonNull Direction snakeDirection = Direction.EAST;
     private @NonNull Direction pendingDirection = Direction.EAST;
@@ -31,19 +30,15 @@ public class PerococcoSnakeGame implements SnakeGame {
     private int snakeLength;
 
     @Getter
-    private perococco.snake.core.Snake snake;
-
-    @Getter
     private GameState state;
 
     public PerococcoSnakeGame(int width, int height) {
         this.width = width;
         this.height = height;
-        this.size = width*height;
+        this.size = width * height;
         this.state = GameState.WAITING;
-        this.snake = new MySnake(this);
 
-        this.points = IntStream.range(0,width*height).mapToObj(i -> Cell.with(i,width)).toArray(Cell[]::new);
+        this.cells = IntStream.range(0, width * height).mapToObj(i -> Cell.with(i, width)).toArray(Cell[]::new);
 
         this.headIndex = RANDOM.nextInt(size);
 
@@ -70,12 +65,12 @@ public class PerococcoSnakeGame implements SnakeGame {
     }
 
     private @NonNull Optional<Point> pickApplePosition() {
-        int numberOfRoomLeft = width*height - snakeLength;
-        if (numberOfRoomLeft<=0) {
+        int numberOfRoomLeft = width * height - snakeLength;
+        if (numberOfRoomLeft <= 0) {
             return Optional.empty();
         }
         int appleIndex = RANDOM.nextInt(numberOfRoomLeft);
-        var cell = points[(appleIndex+1+headIndex)%size];
+        var cell = cells[(appleIndex + 1 + headIndex) % size];
         return Optional.ofNullable(cell.getPoint());
     }
 
@@ -94,6 +89,26 @@ public class PerococcoSnakeGame implements SnakeGame {
         }
     }
 
+    @Override
+    public @NonNull GameView createSnapshot() {
+        return new GameView(state, width,height,apple, getSnakeBody());
+    }
+
+    private @NonNull List<Point> getSnakeBody() {
+        return IntStream.range(0, snakeLength)
+                        .map(this::convertBodyIndexToCellIndex)
+                        .mapToObj(i -> this.cells[i].getPoint())
+                        .collect(Collectors.toUnmodifiableList());
+    }
+
+    private int convertBodyIndexToCellIndex(int bodyIndex) {
+        return Math.mod(this.headIndex - bodyIndex, this.size);
+    }
+
+    private boolean isSnakeAlive() {
+        return this.state != GameState.GAME_LOST;
+    }
+
     private boolean moveSnake() {
         this.snakeDirection = pendingDirection;
         final var destination = getSnakeHeadPosition().pointAt(snakeDirection);
@@ -104,7 +119,7 @@ public class PerococcoSnakeGame implements SnakeGame {
             final var appleEaten = destination.equals(apple);
             final var newHeadIndex = (this.headIndex + 1) % size;
             final var destinationIndex = toLinearCoordinate(destination);
-            final var cellIndex = this.points[destinationIndex].getIndex();
+            final var cellIndex = this.cells[destinationIndex].getIndex();
 
             this.swapCell(newHeadIndex, cellIndex);
 
@@ -120,39 +135,39 @@ public class PerococcoSnakeGame implements SnakeGame {
 
     private boolean isOnSnakeBody(@NonNull Point destination) {
         int linearCoordinate = toLinearCoordinate(destination);
-        int index = this.points[linearCoordinate].getIndex();
+        int index = this.cells[linearCoordinate].getIndex();
 
-        int relative = Math.mod(index-headIndex+snakeLength,size);
+        int relative = Math.mod(index - headIndex + snakeLength, size);
 
-        return relative>0 && relative<=snakeLength;
+        return relative > 0 && relative <= snakeLength;
     }
 
     private void swapCell(int index1, int index2) {
-        final var cell1 = this.points[index1];
-        final var cell2 = this.points[index2];
+        final var cell1 = this.cells[index1];
+        final var cell2 = this.cells[index2];
 
-        this.points[index1] = cell2;
-        this.points[index2] = cell1;
+        this.cells[index1] = cell2;
+        this.cells[index2] = cell1;
 
         final var backup = cell1.getIndex();
         cell1.setIndex(cell2.getIndex());
         cell2.setIndex(backup);
 
-        this.points[toLinearCoordinate(cell2.getPoint())].setIndex(index1);
-        this.points[toLinearCoordinate(cell1.getPoint())].setIndex(index2);
+        this.cells[toLinearCoordinate(cell2.getPoint())].setIndex(index1);
+        this.cells[toLinearCoordinate(cell1.getPoint())].setIndex(index2);
     }
 
     private boolean isOnBorder(@NonNull Point destination) {
-        return destination.getX() < 0 || destination.getY()< 0 || destination.getX()>=width || destination.getY()>=height;
+        return destination.getX() < 0 || destination.getY() < 0 || destination.getX() >= width || destination.getY() >= height;
     }
 
     private @NonNull Point getSnakeHeadPosition() {
-        return this.points[this.headIndex].getPoint();
+        return this.cells[this.headIndex].getPoint();
     }
 
 
     public @NonNull int toLinearCoordinate(@NonNull Point point) {
-        return point.getX()+point.getY()*width;
+        return point.getX() + point.getY() * width;
     }
 
 
@@ -163,33 +178,28 @@ public class PerococcoSnakeGame implements SnakeGame {
         }
     }
 
-    @Override
-    public @NonNull Optional<Point> getApple() {
-        return Optional.ofNullable(apple);
-    }
 
-
-    @RequiredArgsConstructor
-    private static class MySnake implements perococco.snake.core.Snake {
-
-        private final @NonNull PerococcoSnakeGame game;
-
-        @Override
-        public boolean isAlive() {
-            return game.getState() != GameState.GAME_LOST;
-        }
-
-        @Override
-        public int bodyLength() {
-            return game.snakeLength;
-        }
-
-        @Override
-        public @NonNull Point position(int bodyPart) {
-            if (bodyPart<0||bodyPart>= game.snakeLength) {
-                throw new IndexOutOfBoundsException();
-            }
-            return game.points[Math.mod(game.headIndex-bodyPart, game.size)].getPoint();
-        }
-    }
+//    @RequiredArgsConstructor
+//    private static class MySnake implements perococco.snake.core.Snake {
+//
+//        private final @NonNull PerococcoSnakeGame game;
+//
+//        @Override
+//        public boolean isAlive() {
+//            return game.getState() != GameState.GAME_LOST;
+//        }
+//
+//        @Override
+//        public int bodyLength() {
+//            return game.snakeLength;
+//        }
+//
+//        @Override
+//        public @NonNull Point position(int bodyPart) {
+//            if (bodyPart<0||bodyPart>= game.snakeLength) {
+//                throw new IndexOutOfBoundsException();
+//            }
+//            return game.points[Math.mod(game.headIndex-bodyPart, game.size)].getPoint();
+//        }
+//    }
 }

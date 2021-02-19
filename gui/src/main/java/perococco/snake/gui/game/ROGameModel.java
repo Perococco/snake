@@ -1,29 +1,24 @@
 package perococco.snake.gui.game;
 
-import javafx.beans.property.ReadOnlyListProperty;
-import javafx.beans.property.ReadOnlyLongProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ObservableList;
 import lombok.NonNull;
-import perococco.snake.core.GameState;
-import perococco.snake.core.SnakeGame;
-
-import java.util.Optional;
+import perococco.snake.core.GameView;
 
 public interface ROGameModel {
 
+    /**
+     * @return a list containing all the available style's names that can be used to draw the snake
+     */
     @NonNull ObservableList<String> getReadOnlySnakeDrawerStyles();
 
-    @NonNull ReadOnlyObjectProperty<Optional<GameState>> gameStateProperty();
-    @NonNull ReadOnlyLongProperty tickProperty();
-    @NonNull ReadOnlyObjectProperty<Optional<SnakeGame>> snakeGameProperty();
+    /**
+     * @return a property containing the last snapshot of the game
+     */
+    @NonNull ReadOnlyObjectProperty<GameView> gameViewProperty();
 
-    default @NonNull Optional<SnakeGame> getSnakeGame() {
-        return snakeGameProperty().get();
-    }
-
-    default long getTick() {
-        return tickProperty().get();
+    default @NonNull GameView getGameView() {
+        return gameViewProperty().get();
     }
 
 

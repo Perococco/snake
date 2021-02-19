@@ -2,7 +2,6 @@ package perococco.snake.core;
 
 import lombok.NonNull;
 
-import java.util.Optional;
 import java.util.ServiceLoader;
 
 public interface SnakeGame {
@@ -18,9 +17,7 @@ public interface SnakeGame {
 
     void setDirection(@NonNull Direction direction);
 
-    @NonNull Optional<Point> getApple();
-
-    @NonNull Snake getSnake();
+    @NonNull GameView createSnapshot();
 
     static SnakeGame create(int width, int height) {
         return ServiceLoader.load(SnakeGameFactory.class)
