@@ -44,12 +44,29 @@ public class S17nDrawer implements SnakeDrawer {
                 from = to;
             }
 
-            var x = part.getPosition().getX() * cellSize;
-            var y = part.getPosition().getY() * cellSize;
+            double x;
+            double y;
+            double partSize;
+
+            double delta = 0.05;
+
+            if(part.isDigestingApple()) {
+                x = (part.getPosition().getX()-delta) * cellSize;
+                y = (part.getPosition().getY()-delta) * cellSize;
+                partSize = cellSize*(1+2*delta);
+            } else {
+                x = part.getPosition().getX() * cellSize;
+                y = part.getPosition().getY() * cellSize;
+                partSize = cellSize;
+            }
 
 
-            context.setFill(new GradientComputer(from, to, dark, light, x, y, cellSize).compute());
-            context.fillRect(x, y, cellSize, cellSize);
+            x = Math.round(x);
+            y = Math.round(y);
+            partSize = Math.round(partSize);
+
+            context.setFill(new GradientComputer(from, to, dark, light, x, y, partSize).compute());
+            context.fillRect(x, y, partSize, partSize);
 
             dark = light;
 

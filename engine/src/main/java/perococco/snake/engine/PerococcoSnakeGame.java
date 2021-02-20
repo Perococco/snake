@@ -109,12 +109,14 @@ public class PerococcoSnakeGame implements SnakeGame {
 
         final var list = new ArrayList<BodyPart>(this.snakeLength);
 
-        var lastPoint = this.cells[convertBodyIndexToCellIndex(0)].getPoint();
-        list.add(new BodyPart(lastPoint,this.snakeDirection));
+        var cell = this.cells[convertBodyIndexToCellIndex(0)];
+        var lastPoint = cell.getPoint();
+        list.add(new BodyPart(lastPoint,this.snakeDirection,cell.isAppleEaten()));
         for (int i = 1; i < snakeLength; i++) {
-            var current = this.cells[convertBodyIndexToCellIndex(i)].getPoint();
+            cell = this.cells[convertBodyIndexToCellIndex(i)];
+            var current = cell.getPoint();
             final var direction = getDirectionToMoveToTarget(current,lastPoint);
-            list.add(new BodyPart(current,direction));
+            list.add(new BodyPart(current,direction,cell.isAppleEaten()));
             lastPoint = current;
         }
         return list;
@@ -156,6 +158,8 @@ public class PerococcoSnakeGame implements SnakeGame {
             this.swapCell(newHeadIndex, cellIndex);
 
             this.headIndex = newHeadIndex;
+
+            this.cells[this.headIndex].setAppleEaten(appleEaten);
 
             if (appleEaten) {
                 this.snakeLength++;

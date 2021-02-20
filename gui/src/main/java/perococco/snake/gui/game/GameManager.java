@@ -38,7 +38,7 @@ public class GameManager {
     @Synchronized
     public void startGame() {
         this.stopGame();
-        var snakeGame = SnakeGame.create(40, 40);
+        var snakeGame = SnakeGame.create(10, 10);
         this.loop = new Loop(snakeGame, () -> Platform.runLater(this::updateModel), gameModel);
         this.thread = new Thread(this.loop);
         this.thread.setDaemon(true);

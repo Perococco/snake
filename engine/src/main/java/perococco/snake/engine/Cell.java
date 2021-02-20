@@ -8,7 +8,7 @@ public class Cell {
 
     public static @NonNull Cell with(int index, int width) {
         final var point = new Point(index%width, index/width);
-        return new Cell(point,width,index);
+        return new Cell(point,width,index,false);
     }
 
     @Getter
@@ -17,6 +17,9 @@ public class Cell {
     private final int width;
     @Getter @Setter
     private int index;
+    @Getter @Setter
+    private boolean appleEaten;
+
 
     @Override
     public String toString() {

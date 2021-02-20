@@ -8,4 +8,5 @@ public class BodyPart {
 
     @NonNull Point position;
     @NonNull Direction to;
+    @NonNull boolean digestingApple;
 }
