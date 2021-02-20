@@ -9,16 +9,16 @@
             <menus>
                 <Menu mnemonicParsing="false" text="File">
                     <items>
-                        <MenuItem mnemonicParsing="false" onAction="#quit" text="Quit" accelerator="Shortcut+Q"/>
+                        <MenuItem accelerator="Shortcut+Q" mnemonicParsing="false" onAction="#quit" text="Quit" />
                     </items>
                 </Menu>
             </menus>
         </MenuBar>
     </top>
     <center>
-        <fx:include source="game.fxml" />
+        <fx:include fx:id="game" source="game.fxml" />
     </center>
     <right>
-        <fx:include source="style-selector.fxml"/>
+        <fx:include fx:id="gameOptions" source="game-options.fxml" BorderPane.alignment="CENTER" />
     </right>
 </BorderPane>

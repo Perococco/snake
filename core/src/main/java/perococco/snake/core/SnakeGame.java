@@ -26,4 +26,6 @@ public interface SnakeGame {
                             .findFirst().orElseThrow(() -> new RuntimeException("No implementation of the SnakeGame"))
                             .create(width, height);
     }
+
+    boolean isGameOver();
 }

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="perococco.snake.gui.GameOptionsController">
+   <children>
+      <GridPane hgap="5.0" vgap="5.0">
+         <columnConstraints>
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+         </rowConstraints>
+         <children>
+            <Label text="Snake Style" GridPane.columnIndex="1" />
+            <ComboBox fx:id="styleSelector" onAction="#onStyleSelected" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label text="Difficulty"/>
+            <ComboBox fx:id="difficultySelector" onAction="#onDifficultySelected" prefWidth="150.0" GridPane.rowIndex="1" />
+         </children>
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding>
+      </GridPane>
+   </children>
+</VBox>

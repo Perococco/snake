@@ -5,7 +5,6 @@ import lombok.NonNull;
 import perococco.snake.core.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class PerococcoSnakeGame implements SnakeGame {
@@ -41,18 +40,24 @@ public class PerococcoSnakeGame implements SnakeGame {
         this.cells = IntStream.range(0, width * height).mapToObj(i -> Cell.with(i, width)).toArray(Cell[]::new);
 
         this.headIndex = RANDOM.nextInt(size);
-
-        this.headIndex = width;
         this.snakeLength = 1;
+        this.headIndex = (width/3) +(height/2)*width;
+        this.snakeDirection = Direction.EAST;
+
+        this.apple = new Point(width/3*2,height/2);
 
 //        this.pendingDirection = Direction.EAST;
-//        for (int i = 0; i < width-1; i++) {
-//            this.apple = Point.of(i+1,1);
+//        for (int i = 0; i < width/2; i++) {
+//            this.apple = getSnakeHeadPosition().pointAt(pendingDirection);
 //            moveSnake();
 //        }
 //        this.pendingDirection = Direction.SOUTH;
+//        for (int j = 0; j < width/2; j++) {
+//            this.apple = getSnakeHeadPosition().pointAt(pendingDirection);
+//            moveSnake();
+//        }
 
-        this.apple = this.pickApplePosition().orElseThrow(() -> new RuntimeException("BUG !!"));
+//        this.apple = this.pickApplePosition().orElseThrow(() -> new RuntimeException("BUG !!"));
     }
 
     @Override
@@ -84,7 +89,7 @@ public class PerococcoSnakeGame implements SnakeGame {
                 this.apple = p;
             }, () -> {
                 this.apple = null;
-                this.state = GameState.GAME_WIN;
+                this.state = GameState.GAME_WON;
             });
         }
     }
@@ -94,11 +99,38 @@ public class PerococcoSnakeGame implements SnakeGame {
         return new GameView(state, width,height,apple, getSnakeBody());
     }
 
-    private @NonNull List<Point> getSnakeBody() {
-        return IntStream.range(0, snakeLength)
-                        .map(this::convertBodyIndexToCellIndex)
-                        .mapToObj(i -> this.cells[i].getPoint())
-                        .collect(Collectors.toUnmodifiableList());
+    @Override
+    public boolean isGameOver() {
+        return state == GameState.GAME_WON || state == GameState.GAME_LOST;
+
+    }
+
+    private @NonNull List<BodyPart> getSnakeBody() {
+
+        final var list = new ArrayList<BodyPart>(this.snakeLength);
+
+        var lastPoint = this.cells[convertBodyIndexToCellIndex(0)].getPoint();
+        list.add(new BodyPart(lastPoint,this.snakeDirection));
+        for (int i = 1; i < snakeLength; i++) {
+            var current = this.cells[convertBodyIndexToCellIndex(i)].getPoint();
+            final var direction = getDirectionToMoveToTarget(current,lastPoint);
+            list.add(new BodyPart(current,direction));
+            lastPoint = current;
+        }
+        return list;
+    }
+
+    private @NonNull Direction getDirectionToMoveToTarget(Point current, Point lastPoint) {
+        final int dy = lastPoint.getY()-current.getY();
+        final int dx = lastPoint.getX()-current.getX();
+        if (dy != 0 && dx != 0) {
+            throw new IllegalStateException("Something wrong, the snake did not move !!");
+        }
+        if (dx == 0) {
+            return dy<0?Direction.NORTH:Direction.SOUTH;
+        } else {
+            return dx<0?Direction.WEST:Direction.EAST;
+        }
     }
 
     private int convertBodyIndexToCellIndex(int bodyIndex) {

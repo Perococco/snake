@@ -25,7 +25,7 @@ public class GameView {
     private final Point apple;
 
     @Getter
-    private final @NonNull List<Point> snakeBody;
+    private final @NonNull List<BodyPart> snakeBody;
 
 
     public @NonNull Optional<Point> getApple() {
@@ -37,7 +37,7 @@ public class GameView {
     }
 
     public @NonNull Point getSakePosition(int bodyIndex) {
-        return snakeBody.get(bodyIndex);
+        return snakeBody.get(bodyIndex).getPosition();
     }
 
     public boolean isEmpty() {
